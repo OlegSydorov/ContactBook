@@ -1,0 +1,13 @@
+E:\Projects\CSWF_EnCount\CSWF_EnCount\bin\Debug\CSWF_EnCount.exe.config
+E:\Projects\CSWF_EnCount\CSWF_EnCount\bin\Debug\CSWF_EnCount.exe
+E:\Projects\CSWF_EnCount\CSWF_EnCount\bin\Debug\CSWF_EnCount.pdb
+E:\Projects\CSWF_EnCount\CSWF_EnCount\obj\Debug\CSWF_EnCount.csprojAssemblyReference.cache
+E:\Projects\CSWF_EnCount\CSWF_EnCount\obj\Debug\CSWF_EnCount.Form1.resources
+E:\Projects\CSWF_EnCount\CSWF_EnCount\obj\Debug\CSWF_EnCount.Properties.Resources.resources
+E:\Projects\CSWF_EnCount\CSWF_EnCount\obj\Debug\CSWF_EnCount.csproj.GenerateResource.cache
+E:\Projects\CSWF_EnCount\CSWF_EnCount\obj\Debug\CSWF_EnCount.csproj.CoreCompileInputs.cache
+E:\Projects\CSWF_EnCount\CSWF_EnCount\obj\Debug\CSWF_EnCount.exe
+E:\Projects\CSWF_EnCount\CSWF_EnCount\obj\Debug\CSWF_EnCount.pdb
+E:\Projects\CSWF_EnCount\CSWF_EnCount\obj\Debug\CSWF_EnCount.AddForm.resources
+E:\Projects\CSWF_EnCount\CSWF_EnCount\obj\Debug\CSWF_EnCount.ViewForm.resources
+E:\Projects\CSWF_EnCount\CSWF_EnCount\obj\Debug\CSWF_EnCount.EditForm.resources
