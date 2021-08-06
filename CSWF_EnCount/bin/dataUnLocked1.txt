@@ -1,0 +1,7 @@
+Sandra Bullock|555 555 5550|Miami, FLO, USA|very talented|CLIENTS|SandraBullock.jpg
+Nicolas Cage|555 555 551|LA, CAL, USA|could shine|CLIENTS|NicolasCage.jpg
+Emily Blunt|555 555 5553|San Francisco, CAL, USA|rising star|COLLEAGUES|EmilyBlunt.jpg
+Alec Baldwin|555 555 5555|San Diego, CA, USA|old seasoned actor|FRIENDS|AlecBaldwin.jpg
+Margot Robbie|555 555 5556|NY, NY, USA|magnet|FAMILY|MargotRobbie.jpg
+Jake Gyllenhaal|555 555 5557|Dallas, TEX, USA|still young and brilliant|COLLEAGUES|JakeGyllenhaal.jpg
+Matthew Mconaughey|555 555 5558|Chicago, MIC, USA|stunning and popular|OTHER|MatthewMconaughey.jpg

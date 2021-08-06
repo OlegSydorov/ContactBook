@@ -11,3 +11,4 @@ E:\Projects\CSWF_EnCount\CSWF_EnCount\obj\Debug\CSWF_EnCount.pdb
 E:\Projects\CSWF_EnCount\CSWF_EnCount\obj\Debug\CSWF_EnCount.AddForm.resources
 E:\Projects\CSWF_EnCount\CSWF_EnCount\obj\Debug\CSWF_EnCount.ViewForm.resources
 E:\Projects\CSWF_EnCount\CSWF_EnCount\obj\Debug\CSWF_EnCount.EditForm.resources
+E:\Projects\CSWF_EnCount\CSWF_EnCount\obj\Debug\CSWF_EnCount.PassWordForm.resources

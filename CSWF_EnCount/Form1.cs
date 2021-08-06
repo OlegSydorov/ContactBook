@@ -8,18 +8,24 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using System.Security.Cryptography;
 
 namespace CSWF_EnCount
 {
     public partial class Form1 : Form
     {
         Dictionary<string, List<string>> dataSet;
-        int save = 0;
+        int save = 1;
+        string pswrd;
+        string pswrdBuffer;
         public Form1()
         {
             InitializeComponent();
             dataSet = new Dictionary<string, List<string>>();
-           
+            pswrd = "";
+            pswrdBuffer = "";
+
+
             listView1.View = View.Details;
 
             listView1.SmallImageList = new ImageList();
@@ -168,12 +174,7 @@ namespace CSWF_EnCount
 
         private void button6_Click(object sender, EventArgs e)
         {
-            StreamWriter writer = new StreamWriter("data.txt", false, Encoding.Default);
-            foreach (var d in dataSet)
-            {
-                writer.WriteLine(d.Value[0]+"|"+ d.Value[1] + "|"+d.Value[2] + "|"+d.Value[3] + "|"+d.Value[4] + "|"+d.Value[5]);
-            }
-            writer.Close();
+            SaveEncrypt(dataSet);
             save = 0;
         }
 
@@ -181,24 +182,189 @@ namespace CSWF_EnCount
         {
             dataSet.Clear();
             listView1.Items.Clear();
-            StreamReader stream = new StreamReader("data.txt", Encoding.Default);
+
+            LoadDecrypt();
+
+            //StreamReader stream = new StreamReader("data.txt", Encoding.Default);
+            //string line;
+            //line = stream.ReadLine();
+
+            //while (line != null)
+            //{
+            //    List<string> list = new List<string>();
+            //    string name=null;
+            //    char[] delim = {'|'};
+            //    string[] subS = line.Split(delim, StringSplitOptions.RemoveEmptyEntries);
+            //    name = subS[0];
+            //    list.Add((subS[0] != "_") ? subS[0] : "_");
+            //    list.Add((subS[1] != "_")?subS[1]:"_");
+            //    list.Add((subS[2] != "_") ? subS[2] : "_");
+            //    list.Add((subS[3] != "_") ? subS[3] : "_");
+            //    list.Add((subS[4] != "_") ? subS[4] : "_");
+            //    list.Add((subS[5] != "default.jpg") ? subS[5] : "default.jpg");
+               
+            //    dataSet.Add(name, list);
+
+            //    line = stream.ReadLine();
+            //}
+            //stream.Close();
+
+            //foreach (var d in dataSet)
+            //{
+            //    ListViewItem item = new ListViewItem(d.Value[0]);
+
+            //    item.SubItems.Add(d.Value[1]);
+            //    item.SubItems.Add(d.Value[2]);
+            //    item.SubItems.Add(d.Value[3]);
+                
+            //    int index = 0;
+            //    for (int i = 0; i < listView1.Groups.Count; i++)
+            //    {
+            //        if (listView1.Groups[i].Name == d.Value[4]) index = i;
+            //    }
+
+            //    item.Group = listView1.Groups[index];
+
+            //    if (d.Value[5] != "default.jpg")
+            //    {
+            //        listView1.LargeImageList.Images.Add(Image.FromFile(d.Value[5]));
+            //        listView1.SmallImageList.Images.Add(Image.FromFile(d.Value[5]));
+            //        int indexPic = listView1.LargeImageList.Images.Count;
+            //        item.ImageIndex = indexPic - 1;
+            //    }
+            //    else item.ImageIndex = 0;
+
+            //    MessageBox.Show(@"New encounter "+d.Value[0]+" added!");
+            //    listView1.Items.Add(item);
+            //}
+        }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            if (save >1)
+            {
+                string message = "Do you want to save the list of encountered?";
+                string caption = "Saving to file";
+                MessageBoxButtons buttons = MessageBoxButtons.YesNo;
+                DialogResult result;
+                result = MessageBox.Show(message, caption, buttons);
+                if (result == System.Windows.Forms.DialogResult.Yes)
+                {
+                    SaveEncrypt(dataSet);
+                }
+            }
+                this.Close();
+
+        }
+
+        private void SaveEncrypt(Dictionary <string, List<string>> data)
+        {
+
+            StreamWriter writer = new StreamWriter("data.txt", false, Encoding.Default);
+            foreach (var d in dataSet)
+            {
+                writer.WriteLine(d.Value[0] + "|" + d.Value[1] + "|" + d.Value[2] + "|" + d.Value[3] + "|" + d.Value[4] + "|" + d.Value[5]);
+            }
+            writer.Close();
+
+            
+
+            FileStream destFile = File.Create("dataLocked.txt");
+
+            FileStream infile = new FileStream("data.txt", FileMode.Open, FileAccess.Read, FileShare.Read);
+
+            byte[] buffer = new byte[infile.Length];
+
+            infile.Read(buffer, 0, buffer.Length);
+            pswrdBuffer = "";
+            while (pswrdBuffer == "")
+            {
+               ShowBox();
+                
+            }
+            pswrd = pswrdBuffer;
+
+            PasswordSave(pswrd);
+
+            RijndaelManaged alg = new RijndaelManaged();
+            
+            byte[] salt = Encoding.ASCII.GetBytes("1cG11Mq19w");
+
+            Rfc2898DeriveBytes key = new Rfc2898DeriveBytes(pswrd, salt);
+            alg.Key = key.GetBytes(alg.KeySize / 8);
+            alg.IV = key.GetBytes(alg.BlockSize / 8);
+            ICryptoTransform encriptor = alg.CreateEncryptor();
+
+            CryptoStream encstream = new CryptoStream(destFile, encriptor, CryptoStreamMode.Write);
+            encstream.Write(buffer, 0, buffer.Length);
+            encstream.Close();
+            infile.Close();
+            destFile.Close();
+            File.Delete("data.txt");
+
+        }
+
+        private void LoadDecrypt()
+        {
+            FileStream decryptedFile = File.Create("dataUnLocked.txt");
+            FileStream cryptedFile = new FileStream("dataLocked.txt", FileMode.Open, FileAccess.Read, FileShare.Read);
+
+            byte[] salt = Encoding.ASCII.GetBytes("1cG11Mq19w");
+
+            if (pswrdBuffer != "")
+            {
+                pswrdBuffer = "";
+                while (pswrdBuffer != pswrd)
+                {
+                    ShowBox();
+                }
+            }
+            else
+            {
+                pswrd = PasswordLoad();
+                while (pswrdBuffer != pswrd)
+                {
+                    ShowBox();
+                }
+            }
+
+
+                Rfc2898DeriveBytes key2 = new Rfc2898DeriveBytes(pswrd, salt);
+            RijndaelManaged alg = new RijndaelManaged(); 
+            alg.Key = key2.GetBytes(alg.KeySize / 8);
+            alg.IV = key2.GetBytes(alg.BlockSize / 8);
+
+            ICryptoTransform decriptor = alg.CreateDecryptor();
+            CryptoStream decstream = new CryptoStream(cryptedFile, decriptor, CryptoStreamMode.Read);
+            int b = decstream.ReadByte();
+            while (b != -1)
+            {
+                decryptedFile.WriteByte((byte)b);
+                b = decstream.ReadByte();
+            }
+
+            decstream.Close();
+            cryptedFile.Close();
+            decryptedFile.Close();
+
+            StreamReader stream = new StreamReader("dataUnLocked.txt", Encoding.Default);
             string line;
             line = stream.ReadLine();
 
             while (line != null)
             {
                 List<string> list = new List<string>();
-                string name=null;
-                char[] delim = {'|'};
+                string name = null;
+                char[] delim = { '|' };
                 string[] subS = line.Split(delim, StringSplitOptions.RemoveEmptyEntries);
                 name = subS[0];
                 list.Add((subS[0] != "_") ? subS[0] : "_");
-                list.Add((subS[1] != "_")?subS[1]:"_");
+                list.Add((subS[1] != "_") ? subS[1] : "_");
                 list.Add((subS[2] != "_") ? subS[2] : "_");
                 list.Add((subS[3] != "_") ? subS[3] : "_");
                 list.Add((subS[4] != "_") ? subS[4] : "_");
                 list.Add((subS[5] != "default.jpg") ? subS[5] : "default.jpg");
-               
+
                 dataSet.Add(name, list);
 
                 line = stream.ReadLine();
@@ -212,7 +378,7 @@ namespace CSWF_EnCount
                 item.SubItems.Add(d.Value[1]);
                 item.SubItems.Add(d.Value[2]);
                 item.SubItems.Add(d.Value[3]);
-                
+
                 int index = 0;
                 for (int i = 0; i < listView1.Groups.Count; i++)
                 {
@@ -230,31 +396,74 @@ namespace CSWF_EnCount
                 }
                 else item.ImageIndex = 0;
 
-                MessageBox.Show(@"New encounter "+d.Value[0]+" added!");
+                MessageBox.Show(@"New encounter " + d.Value[0] + " added!");
                 listView1.Items.Add(item);
             }
         }
 
-        private void button7_Click(object sender, EventArgs e)
+        private void ShowBox()
         {
-            if (save != 0)
+            PassWordForm pForm = new PassWordForm();
+            pForm.Owner = this;
+            pForm.OnPasswordEntered += Form_OnPasswordEntered;
+            DialogResult res = pForm.ShowDialog();
+        }
+
+        private void Form_OnPasswordEntered(object sender, string word)
+        {
+            pswrdBuffer=word;
+        }
+
+        private void PasswordSave(string word)
+        {
+            FileStream destFile = File.Create("pswrdLocked.txt");
+            byte[] buffer = Encoding.ASCII.GetBytes(word);
+            RijndaelManaged alg = new RijndaelManaged();
+            byte[] salt = Encoding.ASCII.GetBytes("1cG11Mq19w");
+            Rfc2898DeriveBytes key = new Rfc2898DeriveBytes("EnCount", salt);
+            alg.Key = key.GetBytes(alg.KeySize / 8);
+            alg.IV = key.GetBytes(alg.BlockSize / 8);
+            ICryptoTransform encriptor = alg.CreateEncryptor();
+            CryptoStream encstream = new CryptoStream(destFile, encriptor, CryptoStreamMode.Write);
+            encstream.Write(buffer, 0, buffer.Length);
+            encstream.Close();
+            destFile.Close();
+        }
+
+        private string PasswordLoad()
+        {
+            string result = null;
+            FileStream decryptedFile = File.Create("pswrdUnLocked.txt"); 
+            FileStream cryptedFile = new FileStream("pswrdLocked.txt", FileMode.Open, FileAccess.Read, FileShare.Read);
+
+            byte[] salt = Encoding.ASCII.GetBytes("1cG11Mq19w");
+
+            Rfc2898DeriveBytes key2 = new Rfc2898DeriveBytes("EnCount", salt);
+            RijndaelManaged alg = new RijndaelManaged();
+            alg.Key = key2.GetBytes(alg.KeySize / 8);
+            alg.IV = key2.GetBytes(alg.BlockSize / 8);
+
+            ICryptoTransform decriptor = alg.CreateDecryptor();
+            CryptoStream decstream = new CryptoStream(cryptedFile, decriptor, CryptoStreamMode.Read);
+            
+            int b = decstream.ReadByte();
+
+            while (b != -1)
             {
-                string message = "Do you want to save the list of encountered?";
-                string caption = "Saving to file";
-                MessageBoxButtons buttons = MessageBoxButtons.YesNo;
-                DialogResult result;
-                result = MessageBox.Show(message, caption, buttons);
-                if (result == System.Windows.Forms.DialogResult.Yes)
-                {
-                    StreamWriter writer = new StreamWriter("data.txt", false, Encoding.Default);
-                    foreach (var d in dataSet)
-                    {
-                        writer.WriteLine(d.Value[0] + "|" + d.Value[1] + "|" + d.Value[2] + "|" + d.Value[3] + "|" + d.Value[4] + "|" + d.Value[5]);
-                    }
-                    writer.Close();
-                }
+                decryptedFile.WriteByte((byte)b);
+                b = decstream.ReadByte();
             }
-                this.Close();
+
+            decstream.Close();
+            cryptedFile.Close();
+            decryptedFile.Close();
+
+            StreamReader stream = new StreamReader("pswrdUnLocked.txt", Encoding.Default);
+            result=stream.ReadLine();
+            stream.Close();
+            File.Delete("pswrdUnLocked.txt");
+
+            return result;
 
         }
     }

@@ -65,6 +65,12 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="ImageResize.cs" />
+    <Compile Include="PassWordForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PassWordForm.Designer.cs">
+      <DependentUpon>PassWordForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewForm.cs">
@@ -81,6 +87,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PassWordForm.resx">
+      <DependentUpon>PassWordForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
