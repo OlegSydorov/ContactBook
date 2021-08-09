@@ -185,58 +185,7 @@ namespace CSWF_EnCount
 
             LoadDecrypt();
 
-            //StreamReader stream = new StreamReader("data.txt", Encoding.Default);
-            //string line;
-            //line = stream.ReadLine();
-
-            //while (line != null)
-            //{
-            //    List<string> list = new List<string>();
-            //    string name=null;
-            //    char[] delim = {'|'};
-            //    string[] subS = line.Split(delim, StringSplitOptions.RemoveEmptyEntries);
-            //    name = subS[0];
-            //    list.Add((subS[0] != "_") ? subS[0] : "_");
-            //    list.Add((subS[1] != "_")?subS[1]:"_");
-            //    list.Add((subS[2] != "_") ? subS[2] : "_");
-            //    list.Add((subS[3] != "_") ? subS[3] : "_");
-            //    list.Add((subS[4] != "_") ? subS[4] : "_");
-            //    list.Add((subS[5] != "default.jpg") ? subS[5] : "default.jpg");
-               
-            //    dataSet.Add(name, list);
-
-            //    line = stream.ReadLine();
-            //}
-            //stream.Close();
-
-            //foreach (var d in dataSet)
-            //{
-            //    ListViewItem item = new ListViewItem(d.Value[0]);
-
-            //    item.SubItems.Add(d.Value[1]);
-            //    item.SubItems.Add(d.Value[2]);
-            //    item.SubItems.Add(d.Value[3]);
-                
-            //    int index = 0;
-            //    for (int i = 0; i < listView1.Groups.Count; i++)
-            //    {
-            //        if (listView1.Groups[i].Name == d.Value[4]) index = i;
-            //    }
-
-            //    item.Group = listView1.Groups[index];
-
-            //    if (d.Value[5] != "default.jpg")
-            //    {
-            //        listView1.LargeImageList.Images.Add(Image.FromFile(d.Value[5]));
-            //        listView1.SmallImageList.Images.Add(Image.FromFile(d.Value[5]));
-            //        int indexPic = listView1.LargeImageList.Images.Count;
-            //        item.ImageIndex = indexPic - 1;
-            //    }
-            //    else item.ImageIndex = 0;
-
-            //    MessageBox.Show(@"New encounter "+d.Value[0]+" added!");
-            //    listView1.Items.Add(item);
-            //}
+            
         }
 
         private void button7_Click(object sender, EventArgs e)
@@ -259,77 +208,82 @@ namespace CSWF_EnCount
 
         private void SaveEncrypt(Dictionary <string, List<string>> data)
         {
+           
 
-            StreamWriter writer = new StreamWriter("data.txt", false, Encoding.Default);
-            foreach (var d in dataSet)
-            {
-                writer.WriteLine(d.Value[0] + "|" + d.Value[1] + "|" + d.Value[2] + "|" + d.Value[3] + "|" + d.Value[4] + "|" + d.Value[5]);
-            }
-            writer.Close();
-
-            
-
-            FileStream destFile = File.Create("dataLocked.txt");
-
-            FileStream infile = new FileStream("data.txt", FileMode.Open, FileAccess.Read, FileShare.Read);
-
-            byte[] buffer = new byte[infile.Length];
-
-            infile.Read(buffer, 0, buffer.Length);
             pswrdBuffer = "";
-            while (pswrdBuffer == "")
+            ShowBox();
+            if (pswrdBuffer == "")
             {
-               ShowBox();
-                
+                MessageBox.Show("You have not entered password!");
             }
-            pswrd = pswrdBuffer;
+            else
+            {
+                pswrd = pswrdBuffer;
 
-            PasswordSave(pswrd);
+                PasswordSave(pswrd);
 
-            RijndaelManaged alg = new RijndaelManaged();
-            
-            byte[] salt = Encoding.ASCII.GetBytes("1cG11Mq19w");
+                StreamWriter writer = new StreamWriter("data.txt", false, Encoding.Default);
+                foreach (var d in dataSet)
+                {
+                    writer.WriteLine(d.Value[0] + "|" + d.Value[1] + "|" + d.Value[2] + "|" + d.Value[3] + "|" + d.Value[4] + "|" + d.Value[5]);
+                }
+                writer.Close();
 
-            Rfc2898DeriveBytes key = new Rfc2898DeriveBytes(pswrd, salt);
-            alg.Key = key.GetBytes(alg.KeySize / 8);
-            alg.IV = key.GetBytes(alg.BlockSize / 8);
-            ICryptoTransform encriptor = alg.CreateEncryptor();
+                FileStream destFile = File.Create("dataLocked.txt");
 
-            CryptoStream encstream = new CryptoStream(destFile, encriptor, CryptoStreamMode.Write);
-            encstream.Write(buffer, 0, buffer.Length);
-            encstream.Close();
-            infile.Close();
-            destFile.Close();
-            File.Delete("data.txt");
+                FileStream infile = new FileStream("data.txt", FileMode.Open, FileAccess.Read, FileShare.Read);
+
+                byte[] buffer = new byte[infile.Length];
+
+                infile.Read(buffer, 0, buffer.Length);
+                RijndaelManaged alg = new RijndaelManaged();
+
+                byte[] salt = Encoding.ASCII.GetBytes("1cG11Mq19w");
+
+                Rfc2898DeriveBytes key = new Rfc2898DeriveBytes(pswrd, salt);
+                alg.Key = key.GetBytes(alg.KeySize / 8);
+                alg.IV = key.GetBytes(alg.BlockSize / 8);
+                ICryptoTransform encriptor = alg.CreateEncryptor();
+
+                CryptoStream encstream = new CryptoStream(destFile, encriptor, CryptoStreamMode.Write);
+                encstream.Write(buffer, 0, buffer.Length);
+                encstream.Close();
+                infile.Close();
+                destFile.Close();
+                File.Delete("data.txt");
+            }
 
         }
 
         private void LoadDecrypt()
         {
-            FileStream decryptedFile = File.Create("dataUnLocked.txt");
-            FileStream cryptedFile = new FileStream("dataLocked.txt", FileMode.Open, FileAccess.Read, FileShare.Read);
-
-            byte[] salt = Encoding.ASCII.GetBytes("1cG11Mq19w");
-
             if (pswrdBuffer != "")
             {
                 pswrdBuffer = "";
-                while (pswrdBuffer != pswrd)
+                ShowBox();
+                if (pswrdBuffer != pswrd)
                 {
-                    ShowBox();
+                    MessageBox.Show("Password incorrect!");
+                    return;
                 }
             }
             else
             {
                 pswrd = PasswordLoad();
-                while (pswrdBuffer != pswrd)
+                ShowBox();
+                if (pswrdBuffer != pswrd)
                 {
-                    ShowBox();
+                    MessageBox.Show("Password incorrect!");
+                    return;
                 }
             }
 
+            FileStream decryptedFile = File.Create("dataUnLocked.txt");
+            FileStream cryptedFile = new FileStream("dataLocked.txt", FileMode.Open, FileAccess.Read, FileShare.Read);
 
-                Rfc2898DeriveBytes key2 = new Rfc2898DeriveBytes(pswrd, salt);
+            byte[] salt = Encoding.ASCII.GetBytes("1cG11Mq19w");
+
+            Rfc2898DeriveBytes key2 = new Rfc2898DeriveBytes(pswrd, salt);
             RijndaelManaged alg = new RijndaelManaged(); 
             alg.Key = key2.GetBytes(alg.KeySize / 8);
             alg.IV = key2.GetBytes(alg.BlockSize / 8);
